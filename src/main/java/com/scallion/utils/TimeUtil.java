@@ -14,7 +14,6 @@ public class TimeUtil {
     private static Date date;
 
     static {
-//        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf = new SimpleDateFormat("HH:mm:ss");
         date = new Date();
     }
