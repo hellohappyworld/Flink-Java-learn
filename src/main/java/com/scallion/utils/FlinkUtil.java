@@ -1,10 +1,14 @@
 package com.scallion.utils;
 
 import com.scallion.job.Job;
+import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.api.common.time.Time;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * created by gaowj.
@@ -19,6 +23,10 @@ public class FlinkUtil {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.enableCheckpointing(1000);
         env.setParallelism(10);
+        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(
+                3,
+                Time.of(10, TimeUnit.SECONDS)
+        ));
     }
 
     public static void run(Job job) {

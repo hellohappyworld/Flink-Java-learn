@@ -37,7 +37,7 @@ public class WordCountProcessFunction extends KeyedProcessFunction<String, WordW
         }
         //更新状态计数值
         current.setCount(current.getCount() + 1);
-        //设置该状态的时间戳为记录的分配的时间时间时间戳
+        //设置该状态的时间戳为记录的分配的时间戳
         if (context != null)
             current.setLastModified(context.timestamp());
         //将状态写回
