@@ -2,12 +2,15 @@ package com.scallion.utils;
 
 import com.scallion.job.Job;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,6 +39,16 @@ public class FlinkUtil {
     public static DataStream<String> getSocketTextStream(String ip, int port) {
         DataStreamSource<String> source = env.socketTextStream(ip, port);
 //        DataStreamSource<String> source = env.fromElements("a a a b c c c d d f h");
+        return source;
+    }
+
+    public static DataStream<String> getKafkaStream(String broker, String topic, String groupId) {
+        Properties prop = new Properties();
+        prop.setProperty("bootstrap.servers", broker);
+        prop.setProperty("group.id", groupId);
+        FlinkKafkaConsumer011<String> kafkaConsumer = new FlinkKafkaConsumer011<>(topic, new SimpleStringSchema(), prop);
+        kafkaConsumer.setStartFromLatest();
+        DataStreamSource<String> source = env.addSource(kafkaConsumer).setParallelism(1);
         return source;
     }
 
