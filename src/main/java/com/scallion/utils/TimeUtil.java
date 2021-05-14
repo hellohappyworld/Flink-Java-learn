@@ -25,7 +25,7 @@ public class TimeUtil {
     }
 
     public static void main(String[] args) {
-        String timestampToDate = TimeUtil.getTimestampToDate(1615367993634L);
+        String timestampToDate = TimeUtil.getTimestampToDate(System.currentTimeMillis());
         System.out.println(timestampToDate);
     }
 }
