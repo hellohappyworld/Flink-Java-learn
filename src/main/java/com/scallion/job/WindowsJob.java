@@ -3,13 +3,17 @@ package com.scallion.job;
 import com.scallion.common.Common;
 import com.scallion.transform.CountAggregateFunction;
 import com.scallion.utils.FlinkUtil;
+import com.scallion.utils.TimeUtil;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.*;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
+import org.apache.flink.util.Collector;
 
 /**
  * created by gaowj.
@@ -53,10 +57,33 @@ public class WindowsJob implements Job {
                 .keyBy(tuple -> tuple.f0)
                 .window(TumblingProcessingTimeWindows.of(Time.minutes(3)))
                 .aggregate(new CountAggregateFunction());
+        //使用ReduceFunction进行增量窗口聚合
+        //获取窗口内事件行为操作的开始和结束时间和窗口的开始结束时间
+        SingleOutputStreamOperator<String> reduceAndProcess = clickStream
+                .keyBy(tuple -> tuple.f0)
+                .window(TumblingProcessingTimeWindows.of(Time.minutes(3)))
+                .reduce(new MyReduceFunction(), new ReduceProcessWindowFunction());
         /**
          * Sink
          */
 //        reduceFunctionStream.print();
-        aggFunctionStream.print();
+//        aggFunctionStream.print();
+        reduceAndProcess.print();
+    }
+
+    private class MyReduceFunction implements ReduceFunction<Tuple3<String, String, String>> {
+        @Override
+        public Tuple3<String, String, String> reduce(Tuple3<String, String, String> input1, Tuple3<String, String, String> input2) throws Exception {
+            return new Tuple3<>(input1.f0, input1.f1, input2.f1);
+        }
+    }
+
+    private class ReduceProcessWindowFunction extends ProcessWindowFunction<Tuple3<String, String, String>, String, String, TimeWindow> {
+        @Override
+        public void process(String key, Context ctx, Iterable<Tuple3<String, String, String>> iterable, Collector<String> collector) throws Exception {
+            Tuple3<String, String, String> tuple = iterable.iterator().next();
+            collector.collect("record key:" + tuple.f0 + " start:" + tuple.f1 + " end:" + tuple.f2
+                    + "----window start:" + TimeUtil.getTimestampToDate(ctx.window().getStart()) + " end:" + TimeUtil.getTimestampToDate(ctx.window().getEnd()));
+        }
     }
 }
