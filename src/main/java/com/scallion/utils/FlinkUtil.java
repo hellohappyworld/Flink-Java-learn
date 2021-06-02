@@ -1,5 +1,6 @@
 package com.scallion.utils;
 
+import com.scallion.common.Common;
 import com.scallion.job.Job;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
@@ -25,7 +26,7 @@ public class FlinkUtil {
     static {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.enableCheckpointing(1000);
-        env.setParallelism(10);
+        env.setParallelism(1);
         env.setRestartStrategy(RestartStrategies.fixedDelayRestart(
                 3,
                 Time.of(10, TimeUnit.SECONDS)
@@ -39,6 +40,16 @@ public class FlinkUtil {
     public static DataStream<String> getSocketTextStream(String ip, int port) {
         DataStreamSource<String> source = env.socketTextStream(ip, port);
 //        DataStreamSource<String> source = env.fromElements("a a a b c c c d d f h");
+        return source;
+    }
+
+    public static DataStream<String> getSocketTextStream() {
+        DataStreamSource<String> source = env.socketTextStream(Common.SOCKET_IP, Common.SOCKET_PORT);
+        return source;
+    }
+
+    public static DataStream<String> getText() {
+        DataStreamSource<String> source = env.fromElements("key2,1487225040000");
         return source;
     }
 
