@@ -6,7 +6,6 @@ import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.shaded.guava18.com.google.common.collect.Iterables;
-import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
@@ -23,13 +22,12 @@ public class WordCountProcessWindowFunction extends ProcessWindowFunction<Tuple2
 
     @Override
     public void open(Configuration parameters) throws Exception {
+        //该状态值为全局状态，不随某个窗口的结束清理
         state = getRuntimeContext().getState(new ValueStateDescriptor<Integer>("WordCountProcess test", Integer.class));
     }
 
     @Override
     public void process(String key, Context context, Iterable<Tuple2<String, Long>> elements, Collector<String> collector) throws Exception {
-        /*if (state == null){
-            state = context.windowState().getState(new ValueStateDescriptor<Integer>("WordCountProcessWindowFunction", Integer.class));*/
         int inputSize = Iterables.size(elements);
         if (state.value() == null)
             count = inputSize;

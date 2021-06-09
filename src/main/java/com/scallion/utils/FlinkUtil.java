@@ -26,7 +26,7 @@ public class FlinkUtil {
     static {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.enableCheckpointing(1000);
-        env.setParallelism(1);
+        env.setParallelism(10);
         env.setRestartStrategy(RestartStrategies.fixedDelayRestart(
                 3,
                 Time.of(10, TimeUnit.SECONDS)

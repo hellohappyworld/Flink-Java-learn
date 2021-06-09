@@ -10,15 +10,17 @@ import org.apache.flink.api.java.tuple.Tuple2;
  * origin ->
  */
 public class MyWatermarkStrategy implements WatermarkStrategy<Tuple2<String, Long>> {
+
     //抽取事件时间
     @Override
     public TimestampAssigner<Tuple2<String, Long>> createTimestampAssigner(TimestampAssignerSupplier.Context context) {
-        return new MyTimestampAssigner();
+        return new MyTimestampAssigner(); //引用 TimestampAssigner接口
     }
 
     //发射水印
     @Override
     public WatermarkGenerator<Tuple2<String, Long>> createWatermarkGenerator(WatermarkGeneratorSupplier.Context context) {
-        return new BoundedOutOfOrdernessGenerator();
+        return new BoundedOutOfOrdernessGenerator(); //引用WatermarkGenerator接口
     }
+
 }
