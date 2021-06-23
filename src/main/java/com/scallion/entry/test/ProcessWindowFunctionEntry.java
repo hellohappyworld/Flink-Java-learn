@@ -1,4 +1,4 @@
-package com.scallion.entry;
+package com.scallion.entry.test;
 
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple3;

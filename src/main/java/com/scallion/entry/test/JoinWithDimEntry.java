@@ -1,4 +1,4 @@
-package com.scallion.entry;
+package com.scallion.entry.test;
 
 import com.scallion.job.JoinWithDimJob;
 import com.scallion.utils.FlinkUtil;

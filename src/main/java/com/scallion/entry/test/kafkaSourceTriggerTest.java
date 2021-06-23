@@ -1,4 +1,4 @@
-package com.scallion.entry;
+package com.scallion.entry.test;
 
 import com.scallion.transform.CustomProcessingTimeTrigger;
 import org.apache.flink.api.common.functions.RichMapFunction;
