@@ -27,6 +27,11 @@ public class WordCountProcessWindowFunction extends ProcessWindowFunction<Tuple2
     }
 
     @Override
+    public void clear(Context context) throws Exception {
+
+    }
+
+    @Override
     public void process(String key, Context context, Iterable<Tuple2<String, Long>> elements, Collector<String> collector) throws Exception {
         int inputSize = Iterables.size(elements);
         if (state.value() == null)
