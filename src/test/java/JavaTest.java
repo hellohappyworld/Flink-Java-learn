@@ -1,9 +1,9 @@
-import com.scallion.common.Common;
+import com.alibaba.fastjson.JSON;
+import com.scallion.bean.PageAndInfoLogBean;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * created by gaowj.
@@ -13,16 +13,6 @@ import java.sql.ResultSet;
  */
 public class JavaTest {
     public static void main(String[] args) throws Exception {
-        Class.forName(Common.DRIVERNAME);
-        Connection conn = DriverManager.getConnection(Common.JDBCURL, Common.USERNAME, Common.PASSWORD);
-        PreparedStatement ps = conn.prepareStatement("select id,name,age,sex from tongji.rt_binlog_to_kudu where name='zhanghao'");
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            System.out.println(rs.getInt("id") +
-                    rs.getString("name") +
-                    rs.getInt("age") +
-                    rs.getString("sex"));
-        }
-        conn.close();
+
     }
 }

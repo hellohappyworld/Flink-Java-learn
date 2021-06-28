@@ -1,6 +1,7 @@
 package com.scallion.common;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * created by gaowj.
@@ -24,20 +25,161 @@ public class Common {
     public static final String SOCKET_IP = "10.90.126.150";
     public static final int SOCKET_PORT = 9999;
     //点击opa(使用时候取非)
-    public static final ArrayList<String> clickOpaTypes = new ArrayList<String>();
+    public static final ArrayList<String> CLICKOPATYPES = new ArrayList<String>();
 
     static {
-        clickOpaTypes.add("pageinfo");
-        clickOpaTypes.add("adinfo");
-        clickOpaTypes.add("btslist");
-        clickOpaTypes.add("inloc");
+        CLICKOPATYPES.add("pageinfo");
+        CLICKOPATYPES.add("adinfo");
+        CLICKOPATYPES.add("btslist");
+        CLICKOPATYPES.add("inloc");
     }
 
     //曝光opa
-    public static final ArrayList<String> infoOpaTypes = new ArrayList<String>();
+    public static final ArrayList<String> INFOOPATYPES = new ArrayList<String>();
 
     static {
-        infoOpaTypes.add("pageinfo");
-        infoOpaTypes.add("adinfo");
+        INFOOPATYPES.add("pageinfo");
+        INFOOPATYPES.add("adinfo");
     }
+
+    //需要过滤的发布版本号
+    public static final HashSet<String> CURPUB = new HashSet<String>();
+
+    static {
+        CURPUB.add("7932");
+        CURPUB.add("7927");
+        CURPUB.add("7925");
+        CURPUB.add("7928");
+        CURPUB.add("7933");
+        CURPUB.add("7924");
+        CURPUB.add("7931");
+        CURPUB.add("7930");
+        CURPUB.add("7926");
+        CURPUB.add("2558");
+        CURPUB.add("7797");
+        CURPUB.add("2443");
+        CURPUB.add("8053");
+        CURPUB.add("8052");
+        CURPUB.add("8050");
+        CURPUB.add("8054");
+        CURPUB.add("1029");
+        CURPUB.add("2040");
+        CURPUB.add("8046");
+        CURPUB.add("8047");
+        CURPUB.add("8048");
+        CURPUB.add("8049");
+        CURPUB.add("8051");
+        CURPUB.add("8045");
+        CURPUB.add("8148");
+        CURPUB.add("8169");
+        CURPUB.add("2638");
+        CURPUB.add("2635");
+        CURPUB.add("2634");
+        CURPUB.add("2637");
+        CURPUB.add("2636");
+        CURPUB.add("9023");
+        CURPUB.add("8104");
+        CURPUB.add("7944");
+        CURPUB.add("7945");
+        CURPUB.add("7946");
+        CURPUB.add("7940");
+        CURPUB.add("7941");
+        CURPUB.add("7942");
+        CURPUB.add("7943");
+        CURPUB.add("7937");
+        CURPUB.add("7939");
+        CURPUB.add("7938");
+        CURPUB.add("2616");
+        CURPUB.add("2615");
+        CURPUB.add("7856");
+        CURPUB.add("7854");
+        CURPUB.add("7855");
+        CURPUB.add("8134");
+        CURPUB.add("8136");
+        CURPUB.add("8137");
+        CURPUB.add("8130");
+        CURPUB.add("8132");
+        CURPUB.add("8129");
+        CURPUB.add("8127");
+        CURPUB.add("8125");
+        CURPUB.add("8123");
+        CURPUB.add("8122");
+        CURPUB.add("8120");
+        CURPUB.add("8118");
+        CURPUB.add("2059");
+        CURPUB.add("2060");
+        CURPUB.add("2061");
+        CURPUB.add("8085");
+        CURPUB.add("8087");
+        CURPUB.add("8080");
+        CURPUB.add("8081");
+        CURPUB.add("8083");
+        CURPUB.add("8078");
+        CURPUB.add("8071");
+        CURPUB.add("8073");
+        CURPUB.add("8074");
+        CURPUB.add("8076");
+        CURPUB.add("6180");
+        CURPUB.add("1024");
+        CURPUB.add("1039");
+        CURPUB.add("2062");
+        CURPUB.add("2024");
+    }
+
+    //用户行为类型 opa
+    public static final HashSet<String> OPA = new HashSet<String>();
+
+    static {
+        OPA.add("page");
+        OPA.add("end");
+        OPA.add("duration");
+        OPA.add("in");
+        OPA.add("pushon");
+        OPA.add("od");
+        OPA.add("pushoff");
+        OPA.add("v");
+        OPA.add("openpush");
+        OPA.add("ts");
+        OPA.add("action");
+        OPA.add("login");
+        OPA.add("outshow");
+        OPA.add("outclick");
+        OPA.add("newsdown");
+        OPA.add("newsshow");
+        OPA.add("pushstatus");
+    }
+
+    //错误标志
+    public static final int ERRFLAG = -1024;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

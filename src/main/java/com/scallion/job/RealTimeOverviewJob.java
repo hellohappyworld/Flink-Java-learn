@@ -3,7 +3,7 @@ package com.scallion.job;
 import com.scallion.bean.PageAndInfoLogBean;
 import com.scallion.common.Common;
 import com.scallion.transform.RealTimeOverviewFilterFunction;
-import com.scallion.transform.RealTimeOverviewKeyedProcessFunction;
+import com.scallion.transform.RealTimeOverviewProcessWindowFunction;
 import com.scallion.transform.RealTimeOverviewMapFunction;
 import com.scallion.transform.RealTimeOverviewWatermarkStrategy;
 import com.scallion.utils.FlinkUtil;
@@ -25,18 +25,18 @@ public class RealTimeOverviewJob implements Job {
         //source
         //过滤出点击日志
         SingleOutputStreamOperator<String> clickJsonLog = FlinkUtil.getKafkaStream(Common.KAFKA_BROKER, Common.PAGE_AND_INFO_TOPIC, Common.KAFKA_CONSUMER_GROUP_ID)
-                .filter(new RealTimeOverviewFilterFunction("filterClickLog"));
-
+                .filter(new RealTimeOverviewFilterFunction("filterClickLog"))
+                .filter(new RealTimeOverviewFilterFunction("filterCurpub"));
         //transform
         //json日志映射为对象
         SingleOutputStreamOperator<PageAndInfoLogBean> clickBeanLog = clickJsonLog
                 .map(new RealTimeOverviewMapFunction("jsonToBean"))
                 .assignTimestampsAndWatermarks(new RealTimeOverviewWatermarkStrategy().withIdleness(Duration.ofSeconds(10)));
-        /*clickBeanLog
-                .keyBy(bean -> bean.getNginxTm().split(" ")[0]) //按天分区，如：2021-06-23
+       /* clickBeanLog
+                .keyBy(bean -> bean.getNginxTm().split(" ")[0].trim()) //按天分区，如：2021-06-23
                 .window(TumblingEventTimeWindows.of(Time.minutes(1))) //1分钟的翻滚窗口
                 .allowedLateness(Time.minutes(30)) //满足30分钟的迟到数据
-                .process(new RealTimeOverviewKeyedProcessFunction())*/
+                .process(new RealTimeOverviewProcessWindowFunction())*/
 
 
         //sink
