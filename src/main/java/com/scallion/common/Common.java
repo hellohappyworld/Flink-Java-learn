@@ -21,6 +21,12 @@ public class Common {
     public static final String USERNAME = "root";
     public static final String PASSWORD = "x4rmkb8TuDiW85mU";
     public static final String DRIVERNAME = "com.mysql.jdbc.Driver";
+    //ORACLE
+    public static final String ORACLEJDBCURL = "oracle.jdbc.driver.OracleDriver";
+    //指定连接位置jdbc:oracle:thin:  ip地址 : 端口号 : <数据库名>
+    public static final String ORACLEURL = "jdbc:oracle:thin:@10.90.19.1:1521:orcl";
+    public static final String ORACLEUSERNAME = "app";
+    public static final String ORACLEPASSWORD = "";
     //Socket
     public static final String SOCKET_IP = "10.90.126.150";
     public static final int SOCKET_PORT = 9999;
