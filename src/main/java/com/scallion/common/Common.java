@@ -157,6 +157,17 @@ public class Common {
 
     //错误标志
     public static final int ERRFLAG = -1024;
+
+    //平台类型
+    public static final ArrayList<String> PLATFORM = new ArrayList<String>();
+
+    static {
+        PLATFORM.add("androidpad");
+        PLATFORM.add("iphone");
+        PLATFORM.add("ipad");
+        PLATFORM.add("windowsphone");
+        PLATFORM.add("android");
+    }
 }
 
 

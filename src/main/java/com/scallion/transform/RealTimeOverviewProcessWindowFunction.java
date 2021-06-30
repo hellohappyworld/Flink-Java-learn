@@ -3,6 +3,7 @@ package com.scallion.transform;
 import com.scallion.bean.PageAndInfoLogBean;
 import com.scallion.bean.RealTimeOverviewResultBean;
 import com.scallion.common.Common;
+import com.scallion.utils.FunctionUtil;
 import com.scallion.utils.TimeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.state.MapState;
@@ -12,7 +13,6 @@ import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.shaded.guava18.com.google.common.hash.BloomFilter;
 import org.apache.flink.shaded.guava18.com.google.common.hash.Funnels;
@@ -20,6 +20,7 @@ import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -42,6 +43,9 @@ public class RealTimeOverviewProcessWindowFunction extends ProcessWindowFunction
     private MapState<String, Integer> dayChUVState;
     //频道维度数据
     private ValueState<BloomFilter<CharSequence>> dimChBloomState;
+    //当日累计分平台UV状态
+    private MapState<String, BloomFilter<CharSequence>> dayPlatUVBloomState;
+    private MapState<String, Integer> dayPlatUVState;
 
     @Override
     public void open(Configuration parameters) throws Exception {
@@ -54,6 +58,16 @@ public class RealTimeOverviewProcessWindowFunction extends ProcessWindowFunction
         dayChUVBloomState = getRuntimeContext().getMapState(dayChUVBloomStateDescriptor);
         MapStateDescriptor<String, Integer> dayChUVStateDescriptor = new MapStateDescriptor<>("dayChUVState", String.class, Integer.class);
         dayChUVState = getRuntimeContext().getMapState(dayChUVStateDescriptor);
+        //初始化频道维度状态
+        ValueStateDescriptor<BloomFilter<CharSequence>> dimChBloomStateDescriptor = new ValueStateDescriptor<>("dimChBloomState", TypeInformation.of(new TypeHint<BloomFilter<CharSequence>>() {
+        }));
+        dimChBloomState = getRuntimeContext().getState(dimChBloomStateDescriptor);
+        //初始化当日累计分平台UV状态
+        MapStateDescriptor<String, BloomFilter<CharSequence>> dayPlatUVStateDescriptor = new MapStateDescriptor<>("dayPlatUVState", TypeInformation.of(String.class), TypeInformation.of(new TypeHint<BloomFilter<CharSequence>>() {
+        }));
+        dayPlatUVBloomState = getRuntimeContext().getMapState(dayPlatUVStateDescriptor);
+        MapStateDescriptor<String, Integer> dayPlatUVOutStateDescriptor = new MapStateDescriptor<>("dayPlatUVState", String.class, Integer.class);
+        dayPlatUVState = getRuntimeContext().getMapState(dayPlatUVOutStateDescriptor);
         //定时更新频道维度数据
         TimerTask timerTask = new TimerTask() {
             @Override
@@ -123,6 +137,9 @@ public class RealTimeOverviewProcessWindowFunction extends ProcessWindowFunction
             keyState.clear();
             dayChUVBloomState.clear();
             dayChUVState.clear();
+            dimChBloomState.clear();
+            dayPlatUVBloomState.clear();
+            dayPlatUVState.clear();
         }
     }
 
@@ -132,7 +149,6 @@ public class RealTimeOverviewProcessWindowFunction extends ProcessWindowFunction
             //获取当前窗口key值
             if (StringUtils.isBlank(keyState.value()))
                 keyState.update(key);
-
 
             Iterator<PageAndInfoLogBean> logIterator = logIterable.iterator();
             //每分钟总UV
@@ -148,73 +164,54 @@ public class RealTimeOverviewProcessWindowFunction extends ProcessWindowFunction
 
             while (logIterator.hasNext()) {
                 PageAndInfoLogBean logBean = logIterator.next();
+                String userkey = logBean.getUserkey();
+                String mos = logBean.getMos();
+                String opa = logBean.getOpa();
+                String record = logBean.getRecord();
 
                 String platForm = "#";//安卓 or 苹果
-                String mos = logBean.getMos();
                 if (mos.contains("android"))
                     platForm = "android";
                 else if (mos.contains("iphone"))
                     platForm = "iphone";
 
                 //计算当日累计分频道UV
-                if ("page".equals(logBean.getOpa()) && logBean.getRecord().contains("type=")
-                        && !logBean.getRecord().contains("ref=back")) {
-                    //渠道id
-                    String id = logBean.getRecord().split("id=")[1].split("\\$")[0].trim();
-                    if (dimChBloomState.value().mightContain(id)) {
-                        String userkey = logBean.getUserkey();
-                        if ("sy".equals(id)) { //头条渠道
-                            int hash = Math.abs(userkey.hashCode()) % 11;
-                            String hashKey = "sy_" + hash;
-                            if (!dayChUVBloomState.contains(hashKey))
-                                dayChUVBloomState.put(hashKey, BloomFilter.create(Funnels.unencodedCharsFunnel(), 200000, 0.01));
-                            if (!dayChUVBloomState.get(hashKey).mightContain(userkey)) {
-                                dayChUVBloomState.get(hashKey).put(userkey);
-                                if (!dayChUVState.contains("sy"))
-                                    dayChUVState.put("sy", 1);
-                                else
-                                    dayChUVState.put("sy", dayChUVState.get("sy") + 1);
-                            }
-                        } else { // 非头条渠道
-                            if (!dayChUVBloomState.contains(id))
-                                dayChUVBloomState.put(id, BloomFilter.create(Funnels.unencodedCharsFunnel(), 200000, 0.01));
-                            if (!dayChUVBloomState.get(id).mightContain(userkey)) {
-                                dayChUVBloomState.get(id).put(userkey);
-                                if (!dayChUVState.contains(id))
-                                    dayChUVState.put(id, 1);
-                                else
-                                    dayChUVState.put(id, dayChUVState.get(id) + 1);
-                            }
-                        }
-                    }
-                }
+                if ("page".equals(opa) && record.contains("type=") && !record.contains("ref=back"))
+                    addDayChUV(record, userkey);
 
-                if (Common.OPA.contains(logBean.getOpa())
-                        && !everyMinuteUVBloom.mightContain(logBean.getUserkey())) {
-                    everyMinuteUVBloom.put(logBean.getUserkey());
-                    //计算每分钟总UV
-                    everyMinuteUV = +1;
-                    //计算每分钟分平台UV
-                    if (!"#".equals(platForm)) {
-                        if (everyMinutePlatUVAndPV.containsKey(platForm)) {
-                            Tuple2<Integer, Integer> tuple2 = everyMinutePlatUVAndPV.get(platForm);
-                            tuple2.f0 += 1;
-                        } else {
-                            everyMinutePlatUVAndPV.put(platForm, Tuple2.of(1, 0));
+                if (Common.OPA.contains(opa)) {
+                    //计算当日分平台累计UV
+                    String platType = FunctionUtil.getMos(mos);
+                    if (!"other".equals(platType)) {
+                        addDayPlatUV(platType, userkey);
+                    }
+
+                    if (!everyMinuteUVBloom.mightContain(userkey)) {
+                        everyMinuteUVBloom.put(userkey);
+                        //计算每分钟总UV
+                        everyMinuteUV = +1;
+                        //计算每分钟分平台UV
+                        if (!"#".equals(platForm)) {
+                            if (everyMinutePlatUVAndPV.containsKey(platForm)) {
+                                Tuple2<Integer, Integer> tuple2 = everyMinutePlatUVAndPV.get(platForm);
+                                tuple2.f0 += 1;
+                            } else {
+                                everyMinutePlatUVAndPV.put(platForm, Tuple2.of(1, 0));
+                            }
                         }
                     }
                 }
 
                 String ref = "";
-                if (logBean.getRecord().contains("ref="))
-                    ref = logBean.getRecord().split("ref=")[1].split("\\$")[0].trim();
+                if (record.contains("ref="))
+                    ref = record.split("ref=")[1].split("\\$")[0].trim();
                 //回退操作发ref=back，不计入PV统计
                 if ("back".equals(ref))
                     continue;
                 //浏览文章单页
-                if ("page".equals(logBean.getOpa())
-                        && !logBean.getRecord().contains("atype=auto")) {
-                    String id = logBean.getRecord().split("id=")[1].split("\\$")[0].trim();
+                if ("page".equals(opa)
+                        && !record.contains("atype=auto")) {
+                    String id = record.split("id=")[1].split("\\$")[0].trim();
                     if (id.startsWith("imcp") || id.startsWith("cmpp")
                             || id.startsWith("sub") || id.startsWith("ucms")) {
                         if (id.split("_").length == 3 && id.split("_")[2] != "0") {
@@ -237,17 +234,17 @@ public class RealTimeOverviewProcessWindowFunction extends ProcessWindowFunction
                     if (ref.startsWith("topic_") || "".equals(ref))
                         continue;
                     //计算每分钟分频道UV,PV
-                    addEveryMinuteChUVAndPV(everyMinuteChUVAndPV, everyMinuteChUVBloom, logBean, ref);
+                    addEveryMinuteChUVAndPV(everyMinuteChUVAndPV, everyMinuteChUVBloom, userkey, ref);
                 }
                 //浏览视频
-                if ("v".equals(logBean.getOpa())
-                        && logBean.getRecord().contains("atype=auto")) {
+                if ("v".equals(opa)
+                        && record.contains("atype=auto")) {
                     int pdur = 0;
                     int vdur = 0;
-                    if (logBean.getRecord().contains("pdur="))
-                        pdur = Integer.parseInt(logBean.getRecord().split("pdur=")[1].split("\\$")[0].trim());
-                    if (logBean.getRecord().contains("vdur="))
-                        vdur = Integer.parseInt(logBean.getRecord().split("vdur=")[1].split("\\$")[0].trim());
+                    if (record.contains("pdur="))
+                        pdur = Integer.parseInt(record.split("pdur=")[1].split("\\$")[0].trim());
+                    if (record.contains("vdur="))
+                        vdur = Integer.parseInt(record.split("vdur=")[1].split("\\$")[0].trim());
                     long readRate = 0;
                     if (!(vdur == 0))
                         readRate = Math.round(pdur * 1.0 / vdur);
@@ -268,7 +265,7 @@ public class RealTimeOverviewProcessWindowFunction extends ProcessWindowFunction
                         if (ref.startsWith("topic_") || "".equals(ref))
                             continue;
                         //计算每分钟分频道UV,PV
-                        addEveryMinuteChUVAndPV(everyMinuteChUVAndPV, everyMinuteChUVBloom, logBean, ref);
+                        addEveryMinuteChUVAndPV(everyMinuteChUVAndPV, everyMinuteChUVBloom, userkey, ref);
                     }
                 }
             }
@@ -280,34 +277,95 @@ public class RealTimeOverviewProcessWindowFunction extends ProcessWindowFunction
     }
 
     /**
+     * 计算当日累计分频道UV
+     *
+     * @param record
+     * @param userkey
+     */
+    private void addDayChUV(String record, String userkey) throws Exception {
+        //渠道id
+        String id = record.split("id=")[1].split("\\$")[0].trim();
+
+        if (dimChBloomState.value().mightContain(id)) {
+            String hash = "";
+            if ("sy".equals(id))
+                hash = String.valueOf(Math.abs(userkey.hashCode()) % 11);
+            String hashKey = id + hash;
+            if (!dayChUVBloomState.contains(hashKey))
+                dayChUVBloomState.put(hashKey, BloomFilter.create(Funnels.unencodedCharsFunnel(), 200000, 0.01));
+            BloomFilter<CharSequence> bloomFilter = dayChUVBloomState.get(hashKey);
+            if (!bloomFilter.mightContain(userkey)) {
+                bloomFilter.put(userkey);
+                dayChUVBloomState.put(hashKey, bloomFilter);
+                if (!dayChUVState.contains(id))
+                    dayChUVState.put(id, 1);
+                else
+                    dayChUVState.put(id, dayChUVState.get(id) + 1);
+            }
+        }
+    }
+
+    /**
+     * 累计分平台当日UV
+     *
+     * @param platType 平台类型
+     * @param userkey
+     */
+    private void addDayPlatUV(String platType, String userkey) throws Exception {
+        String hash = "";
+        int expectedInsertions = 0;
+        switch (platType) {
+            case "android":
+                hash = String.valueOf(Math.abs(userkey.hashCode()) % 10);
+                expectedInsertions = 200000;
+                break;
+            case "iphone":
+                hash = String.valueOf(Math.abs(userkey.hashCode()) % 2);
+                expectedInsertions = 200000;
+                break;
+            default:
+                expectedInsertions = 100000;
+        }
+        String hashKey = platType + hash;
+        if (!dayPlatUVBloomState.contains(hashKey))
+            dayPlatUVBloomState.put(hashKey, BloomFilter.create(Funnels.unencodedCharsFunnel(), expectedInsertions, 0.01));
+        BloomFilter<CharSequence> bloomFilter = dayPlatUVBloomState.get(hashKey);
+        if (!bloomFilter.mightContain(userkey)) {
+            bloomFilter.put(userkey);
+            dayPlatUVBloomState.put(hashKey, bloomFilter);
+            if (!dayPlatUVState.contains(platType))
+                dayPlatUVState.put(platType, 1);
+            else
+                dayPlatUVState.put(platType, dayPlatUVState.get(platType) + 1);
+        }
+    }
+
+
+    /**
      * 计算每分钟分频道UV,PV
      *
      * @param everyMinuteChUVAndPV
      * @param everyMinuteChUVBloom
-     * @param logBean
+     * @param userKey
      * @param ref
      */
-    private void addEveryMinuteChUVAndPV(HashMap<String, Tuple2<Integer, Integer>> everyMinuteChUVAndPV, HashMap<String, BloomFilter<CharSequence>> everyMinuteChUVBloom, PageAndInfoLogBean logBean, String ref) {
+    private void addEveryMinuteChUVAndPV(HashMap<String, Tuple2<Integer, Integer>> everyMinuteChUVAndPV, HashMap<String, BloomFilter<CharSequence>> everyMinuteChUVBloom, String userKey, String ref) {
         if (everyMinuteChUVBloom.containsKey(ref)) {
             //第一位为UV值，第二位为PV值
             Tuple2<Integer, Integer> uvAndPv = everyMinuteChUVAndPV.get(ref);
             BloomFilter<CharSequence> bloomFilter = everyMinuteChUVBloom.get(ref);
 
-            if (!bloomFilter.mightContain(logBean.getUserkey())) {
-                bloomFilter.put(logBean.getUserkey());
+            if (!bloomFilter.mightContain(userKey)) {
+                bloomFilter.put(userKey);
                 uvAndPv.f0 += 1;
             }
             uvAndPv.f1 += 1;
         } else {
             BloomFilter<CharSequence> bloomFilter = BloomFilter.create(Funnels.unencodedCharsFunnel(), 40000, 0.01);
-            bloomFilter.put(logBean.getUserkey());
-
-            Tuple2<Integer, Integer> tuple2 = new Tuple2<>();
-            tuple2.f0 = 1;
-            tuple2.f1 = 1;
+            bloomFilter.put(userKey);
 
             everyMinuteChUVBloom.put(ref, bloomFilter);
-            everyMinuteChUVAndPV.put(ref, tuple2);
+            everyMinuteChUVAndPV.put(ref, Tuple2.of(1, 1));
         }
     }
 }
