@@ -1,6 +1,7 @@
 package com.scallion.job;
 
 import com.scallion.bean.PageAndInfoLogBean;
+import com.scallion.bean.RealTimeOverviewResultBean;
 import com.scallion.common.Common;
 import com.scallion.transform.RealTimeOverviewFilterFunction;
 import com.scallion.transform.RealTimeOverviewProcessWindowFunction;
@@ -32,13 +33,13 @@ public class RealTimeOverviewJob implements Job {
         SingleOutputStreamOperator<PageAndInfoLogBean> clickBeanLog = clickJsonLog
                 .map(new RealTimeOverviewMapFunction("jsonToBean"))
                 .assignTimestampsAndWatermarks(new RealTimeOverviewWatermarkStrategy().withIdleness(Duration.ofSeconds(10)));
-       /* clickBeanLog
+        SingleOutputStreamOperator<RealTimeOverviewResultBean> result = clickBeanLog
                 .keyBy(bean -> bean.getNginxTm().split(" ")[0].trim()) //按天分区，如：2021-06-23
                 .window(TumblingEventTimeWindows.of(Time.minutes(1))) //1分钟的翻滚窗口
                 .allowedLateness(Time.minutes(30)) //满足30分钟的迟到数据
-                .process(new RealTimeOverviewProcessWindowFunction())*/
-
+                .process(new RealTimeOverviewProcessWindowFunction());
 
         //sink
+        result.print();
     }
 }

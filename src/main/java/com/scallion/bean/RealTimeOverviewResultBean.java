@@ -1,5 +1,7 @@
 package com.scallion.bean;
 
+import org.apache.flink.api.java.tuple.Tuple2;
+
 import java.util.HashMap;
 
 /**
@@ -15,16 +17,14 @@ public class RealTimeOverviewResultBean {
     private int everyMinutePV;
     //每分钟uv
     private int everyMinuteUV;
-    //当日累计UV
-    private int dayUV;
-    //当日分机型累计UV
-    private HashMap<String, Integer> dayPhoneModelUV = new HashMap<String, Integer>();
+    //每分钟分频道UV,PV Tuple2<Integer, Integer>第一位为UV值，第二位为PV值
+    HashMap<String, Tuple2<Integer, Integer>> everyMinuteChUVAndPV;
+    //每分钟分平台UV,PV Tuple2<Integer, Integer>第一位为UV值，第二位为PV值
+    HashMap<String, Tuple2<Integer, Integer>> everyMinutePlatUVAndPV;
     //当日分频道累计UV
-    private HashMap<String, Integer> dayChannelUV = new HashMap<String, Integer>();
-    //每分钟分机型UV
-    private HashMap<String, Integer> everyMinuteChannelUV = new HashMap<String, Integer>();
-    //每分钟分机型PV
-    private HashMap<String, Integer> everyMinuteChannelPV = new HashMap<String, Integer>();
+    HashMap<String, Integer> dayChUV;
+    //当日分平台累计UV
+    HashMap<String, Integer> dayPlatUV;
 
     public RealTimeOverviewResultBean() {
     }
@@ -53,44 +53,36 @@ public class RealTimeOverviewResultBean {
         this.everyMinuteUV = everyMinuteUV;
     }
 
-    public int getDayUV() {
-        return dayUV;
+    public HashMap<String, Tuple2<Integer, Integer>> getEveryMinuteChUVAndPV() {
+        return everyMinuteChUVAndPV;
     }
 
-    public void setDayUV(int dayUV) {
-        this.dayUV = dayUV;
+    public void setEveryMinuteChUVAndPV(HashMap<String, Tuple2<Integer, Integer>> everyMinuteChUVAndPV) {
+        this.everyMinuteChUVAndPV = everyMinuteChUVAndPV;
     }
 
-    public HashMap<String, Integer> getDayPhoneModelUV() {
-        return dayPhoneModelUV;
+    public HashMap<String, Tuple2<Integer, Integer>> getEveryMinutePlatUVAndPV() {
+        return everyMinutePlatUVAndPV;
     }
 
-    public void setDayPhoneModelUV(HashMap<String, Integer> dayPhoneModelUV) {
-        this.dayPhoneModelUV = dayPhoneModelUV;
+    public void setEveryMinutePlatUVAndPV(HashMap<String, Tuple2<Integer, Integer>> everyMinutePlatUVAndPV) {
+        this.everyMinutePlatUVAndPV = everyMinutePlatUVAndPV;
     }
 
-    public HashMap<String, Integer> getDayChannelUV() {
-        return dayChannelUV;
+    public HashMap<String, Integer> getDayChUV() {
+        return dayChUV;
     }
 
-    public void setDayChannelUV(HashMap<String, Integer> dayChannelUV) {
-        this.dayChannelUV = dayChannelUV;
+    public void setDayChUV(HashMap<String, Integer> dayChUV) {
+        this.dayChUV = dayChUV;
     }
 
-    public HashMap<String, Integer> getEveryMinuteChannelUV() {
-        return everyMinuteChannelUV;
+    public HashMap<String, Integer> getDayPlatUV() {
+        return dayPlatUV;
     }
 
-    public void setEveryMinuteChannelUV(HashMap<String, Integer> everyMinuteChannelUV) {
-        this.everyMinuteChannelUV = everyMinuteChannelUV;
-    }
-
-    public HashMap<String, Integer> getEveryMinuteChannelPV() {
-        return everyMinuteChannelPV;
-    }
-
-    public void setEveryMinuteChannelPV(HashMap<String, Integer> everyMinuteChannelPV) {
-        this.everyMinuteChannelPV = everyMinuteChannelPV;
+    public void setDayPlatUV(HashMap<String, Integer> dayPlatUV) {
+        this.dayPlatUV = dayPlatUV;
     }
 
     @Override
@@ -99,11 +91,10 @@ public class RealTimeOverviewResultBean {
                 "tm='" + tm + '\'' +
                 ", everyMinutePV=" + everyMinutePV +
                 ", everyMinuteUV=" + everyMinuteUV +
-                ", dayUV=" + dayUV +
-                ", dayPhoneModelUV=" + dayPhoneModelUV +
-                ", dayChannelUV=" + dayChannelUV +
-                ", everyMinuteChannelUV=" + everyMinuteChannelUV +
-                ", everyMinuteChannelPV=" + everyMinuteChannelPV +
+                ", everyMinuteChUVAndPV=" + everyMinuteChUVAndPV +
+                ", everyMinutePlatUVAndPV=" + everyMinutePlatUVAndPV +
+                ", dayChUV=" + dayChUV +
+                ", dayPlatUV=" + dayPlatUV +
                 '}';
     }
 }

@@ -270,6 +270,28 @@ public class RealTimeOverviewProcessWindowFunction extends ProcessWindowFunction
                 }
             }
 
+            //组装结果
+            RealTimeOverviewResultBean resultBean = new RealTimeOverviewResultBean();
+            resultBean.setTm(TimeUtil.getTimestampToDate(context.window().getStart()));
+            resultBean.setEveryMinuteUV(everyMinuteUV);
+            resultBean.setEveryMinutePV(everyMinutePV);
+            resultBean.setEveryMinuteChUVAndPV(everyMinuteChUVAndPV);
+            resultBean.setEveryMinutePlatUVAndPV(everyMinutePlatUVAndPV);
+            HashMap<String, Integer> dayChUVMap = new HashMap<>();
+            Iterator<String> dayChKeys = dayChUVState.keys().iterator();
+            while (dayChKeys.hasNext()) {
+                String chKey = dayChKeys.next();
+                dayChUVMap.put(chKey, dayChUVState.get(chKey));
+            }
+            resultBean.setDayChUV(dayChUVMap);
+            HashMap<String, Integer> dayPlatUVMap = new HashMap<>();
+            Iterator<String> dayPlatKeys = dayPlatUVState.keys().iterator();
+            while (dayPlatKeys.hasNext()) {
+                String platKey = dayPlatKeys.next();
+                dayPlatUVMap.put(platKey, dayPlatUVState.get(platKey));
+            }
+            resultBean.setDayPlatUV(dayPlatUVMap);
+            out.collect(resultBean);
         } catch (Exception ex) {
             ex.printStackTrace();
             System.out.println("RealTimeOverviewProcessWindowFunction is err");
