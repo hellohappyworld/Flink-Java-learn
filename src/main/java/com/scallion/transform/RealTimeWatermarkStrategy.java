@@ -9,16 +9,16 @@ import org.apache.flink.api.common.eventtime.*;
  * function: 实时概况水印策略
  * origin ->
  */
-public class RealTimeOverviewWatermarkStrategy implements WatermarkStrategy<PageAndInfoLogBean> {
+public class RealTimeWatermarkStrategy implements WatermarkStrategy<PageAndInfoLogBean> {
     //抽取事件时间
     @Override
     public TimestampAssigner<PageAndInfoLogBean> createTimestampAssigner(TimestampAssignerSupplier.Context context) {
-        return new RealTimeOverviewTimestampAssigner();
+        return new RealTimeTimestampAssigner();
     }
 
     //发射水印
     @Override
     public WatermarkGenerator<PageAndInfoLogBean> createWatermarkGenerator(WatermarkGeneratorSupplier.Context context) {
-        return new RealTimeOverviewWatermarkGenerator();
+        return new RealTimeWatermarkGenerator();
     }
 }

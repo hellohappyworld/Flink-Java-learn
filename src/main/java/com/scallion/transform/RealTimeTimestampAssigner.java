@@ -10,7 +10,7 @@ import org.apache.flink.api.common.eventtime.TimestampAssigner;
  * function:实时概况事件时间抽取器
  * origin ->
  */
-public class RealTimeOverviewTimestampAssigner implements TimestampAssigner<PageAndInfoLogBean> {
+public class RealTimeTimestampAssigner implements TimestampAssigner<PageAndInfoLogBean> {
     @Override
     public long extractTimestamp(PageAndInfoLogBean pageAndInfoLogBean, long l) {
         return TimeUtil.getDateToTimestamp(pageAndInfoLogBean.getNginxTm());

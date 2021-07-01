@@ -10,14 +10,14 @@ import org.apache.flink.api.common.functions.RichMapFunction;
  * function:实时概况转换函数
  * origin ->
  */
-public class RealTimeOverviewMapFunction extends RichMapFunction<String, PageAndInfoLogBean> {
+public class RealTimeMapFunction extends RichMapFunction<String, PageAndInfoLogBean> {
     //转换类型
     private String mapType;
 
-    public RealTimeOverviewMapFunction() {
+    public RealTimeMapFunction() {
     }
 
-    public RealTimeOverviewMapFunction(String mapType) {
+    public RealTimeMapFunction(String mapType) {
         this.mapType = mapType;
     }
 
@@ -32,7 +32,7 @@ public class RealTimeOverviewMapFunction extends RichMapFunction<String, PageAnd
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            System.out.println("RealTimeOverviewMapFunction err:" + input);
+            System.out.println("RealTimeMapFunction err:" + input);
             return null;
         }
     }

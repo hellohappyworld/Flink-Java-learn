@@ -11,7 +11,7 @@ import org.apache.flink.api.common.eventtime.WatermarkOutput;
  * function:实时概况水印发射器
  * origin ->
  */
-public class RealTimeOverviewWatermarkGenerator implements WatermarkGenerator<PageAndInfoLogBean> {
+public class RealTimeWatermarkGenerator implements WatermarkGenerator<PageAndInfoLogBean> {
     private final long maxOutOfOrderness = 1000; //1秒的乱序
     private long currentMaxTimestamp;
 
