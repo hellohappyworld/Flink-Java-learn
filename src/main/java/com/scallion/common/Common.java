@@ -20,6 +20,8 @@ public class Common {
     public static final String KAFKA_CONSUMER_GROUP_ID = "gaowj_ceshi_realTimeOverview_202105131505";
     //实时播放消费者组
     public static final String VIDEO_PLAY_KAFKA_CONSUMER_GROUP_ID = "gaowj_ceshi_videoPlay_202107011519";
+    //实时点击排行消费者组
+    public static final String CLICK_RANK_KAFKA_CONSUMER_GROUP_ID = "gaowj_ceshi_clickRank_202107021556";
     //MySQL
     public static final String JDBCURL = "jdbc:mysql://10.21.7.108:3306?useSSL=false";
     public static final String USERNAME = "root";
@@ -40,6 +42,9 @@ public class Common {
     static {
         OPATYPES.put("v", "v");
         OPATYPES.put("pageinfo", "pageinfo");
+        OPATYPES.put("page", "page");
+        OPATYPES.put("action", "action");
+        OPATYPES.put("ts", "ts");
     }
 
     //点击opa(使用时候取非)
