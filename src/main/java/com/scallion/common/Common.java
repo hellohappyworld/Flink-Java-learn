@@ -13,9 +13,13 @@ import java.util.HashSet;
 public class Common {
     //Kafka
     public static final String KAFKA_BROKER = "10.66.224.128:9092";
+    public static final String KAFKA_TC_BROKER = "10.64.225.13:9092";
     public static final String APP_NEWSAPP_TOPIC = "app_newsapp";
     public static final String APP_NEWSAPP_INFO_TOPIC = "app_newsapp_info";
     public static final String PAGE_AND_INFO_TOPIC = "app_newsapp_pageAndInfo_watermark";
+    public static final String CONTENT_FEATURES_TOPIC = "tc_all_analysis_data";
+    //维表源数据消费者组
+    public static final String DIM_SOURCE_CONSUMER_GROUP_ID = "gaowj_ceshi_dim_202107081110";
     //实时概况消费者组 RealTimeOverview
     public static final String KAFKA_CONSUMER_GROUP_ID = "gaowj_ceshi_realTimeOverview_202105131505";
     //实时播放消费者组
