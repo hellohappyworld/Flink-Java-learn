@@ -33,6 +33,7 @@ public class RealTimeVideoPlayJob implements Job {
         //json日志映射为bean对象
         SingleOutputStreamOperator<PageAndInfoLogBean> clickAndInfoBeanLog = clickAndInfoJsonLog
                 .map(new RealTimeMapFunction("jsonToBean"))
+                .map(bean -> (PageAndInfoLogBean) bean) //父类转换成子类
                 .assignTimestampsAndWatermarks(new RealTimeWatermarkStrategy().withIdleness(Duration.ofSeconds(10)));
 
         SingleOutputStreamOperator<RealTimeVideoPlayResultBean> result = clickAndInfoBeanLog

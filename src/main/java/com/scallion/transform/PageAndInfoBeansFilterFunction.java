@@ -9,7 +9,7 @@ import org.apache.flink.api.common.functions.RichFilterFunction;
  * function:
  * origin ->
  */
-public class PageAndInfoBeansFilterFunction extends RichFilterFunction<PageAndInfoLogBean> {
+public class PageAndInfoBeansFilterFunction extends RichFilterFunction<Object> {
     //过滤类型
     private String filterType;
 
@@ -18,11 +18,13 @@ public class PageAndInfoBeansFilterFunction extends RichFilterFunction<PageAndIn
     }
 
     @Override
-    public boolean filter(PageAndInfoLogBean logBean) throws Exception {
+    public boolean filter(Object logBean) throws Exception {
         try {
             switch (filterType) {
-                case "":
+                case "": {
+                    PageAndInfoLogBean PageAndInfoLogBean = (PageAndInfoLogBean) logBean;
                     return false;
+                }
                 default:
                     return false;
             }

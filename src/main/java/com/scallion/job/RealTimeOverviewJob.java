@@ -32,6 +32,7 @@ public class RealTimeOverviewJob implements Job {
         //json日志映射为对象
         SingleOutputStreamOperator<PageAndInfoLogBean> clickBeanLog = clickJsonLog
                 .map(new RealTimeMapFunction("jsonToBean"))
+                .map(bean -> (PageAndInfoLogBean) bean) //父类转换成子类
                 .assignTimestampsAndWatermarks(new RealTimeWatermarkStrategy().withIdleness(Duration.ofSeconds(10)));
         SingleOutputStreamOperator<RealTimeOverviewResultBean> result = clickBeanLog
                 .keyBy(bean -> bean.getNginxTm().split(" ")[0].trim()) //按天分区，如：2021-06-23

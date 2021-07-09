@@ -50,6 +50,12 @@ public class TimeUtil {
         return format;
     }
 
+    public static String getTimestampToDateStr(long timeStamp) {
+        date.setTime(timeStamp);
+        String format = dateToTimestampSdf.format(date);
+        return format;
+    }
+
     public static long getDateToTimestamp(String date) {
         long timestamp;
         try {
@@ -62,9 +68,7 @@ public class TimeUtil {
     }
 
     public static void main(String[] args) {
-        String day1 = TimeUtil.getTimestampToDay(1624958205715L);
-        String day2 = TimeUtil.getTimestampToDay(1614950205715L);
-        System.out.println(day1 + " " + day2);
-        System.out.println(TimeUtil.compareDay(day1, day2));
+        String day1 = TimeUtil.getTimestampToDateStr(1624958205715L);
+        System.out.println(day1);
     }
 }

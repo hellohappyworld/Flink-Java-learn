@@ -14,6 +14,8 @@ public class Common {
     //Kafka
     public static final String KAFKA_BROKER = "10.66.224.128:9092";
     public static final String KAFKA_TC_BROKER = "10.64.225.13:9092";
+    public static final String KAFKA_ACCOUNT_BROKER = "";
+    public static final String ACCOUNT_SOURCE_TOPIC = "";
     public static final String APP_NEWSAPP_TOPIC = "app_newsapp";
     public static final String APP_NEWSAPP_INFO_TOPIC = "app_newsapp_info";
     public static final String PAGE_AND_INFO_TOPIC = "app_newsapp_pageAndInfo_watermark";
@@ -189,6 +191,9 @@ public class Common {
         PLATFORM.add("windowsphone");
         PLATFORM.add("android");
     }
+
+    //默认值
+    public static final String BEANFIELDDEFAULT = "#";
 }
 
 

@@ -1,6 +1,7 @@
 package com.scallion.transform;
 
 import com.alibaba.fastjson.JSON;
+import com.scallion.bean.DimAccountBean;
 import com.scallion.bean.PageAndInfoLogBean;
 import org.apache.flink.api.common.functions.RichMapFunction;
 
@@ -10,7 +11,7 @@ import org.apache.flink.api.common.functions.RichMapFunction;
  * function:实时概况转换函数
  * origin ->
  */
-public class RealTimeMapFunction extends RichMapFunction<String, PageAndInfoLogBean> {
+public class RealTimeMapFunction extends RichMapFunction<String, Object> {
     //转换类型
     private String mapType;
 
@@ -22,11 +23,13 @@ public class RealTimeMapFunction extends RichMapFunction<String, PageAndInfoLogB
     }
 
     @Override
-    public PageAndInfoLogBean map(String input) throws Exception {
+    public Object map(String input) throws Exception {
         try {
             switch (mapType) {
                 case "jsonToBean":
                     return JSON.parseObject(input, PageAndInfoLogBean.class);
+                case "accountJsonToBean":
+                    return JSON.parseObject(input, DimAccountBean.class);
                 default:
                     return null;
             }
