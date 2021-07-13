@@ -3,6 +3,7 @@ package com.scallion.transform;
 import com.alibaba.fastjson.JSON;
 import com.scallion.bean.DimAccountBean;
 import com.scallion.bean.DimContentBean;
+import com.scallion.bean.OdsLogTmpBean;
 import com.scallion.bean.PageAndInfoLogBean;
 import com.scallion.common.Common;
 import org.apache.flink.api.common.functions.RichMapFunction;
@@ -51,6 +52,8 @@ public class RealTimeMapFunction extends RichMapFunction<String, Object> {
 
                     return dimContentBean;
                 }
+                case Common.FLOW_LOGS_JSON_TO_BEAN:
+                    return JSON.parseObject(input, OdsLogTmpBean.class);
                 default:
                     return null;
             }

@@ -23,6 +23,8 @@ public class Common {
     public static final String UCMSARTICLEINFO = "ucmsArticleInfo";
     public static final String UCMSVIDEOINFO = "ucmsVideoInfo";
     public static final String UCMSSPECIALINFO = "ucmsSpecialInfo";
+    //明细层源数据消费者组
+    public static final String DWD_SOURCE_CONSUMER_GROUP_ID = "gaowj_ceshi_dwd_202107131530";
     //维表源数据消费者组
     public static final String DIM_SOURCE_CONSUMER_GROUP_ID = "gaowj_ceshi_dim_202107081110";
     //实时概况消费者组 RealTimeOverview
@@ -202,6 +204,7 @@ public class Common {
     public static final String JSONTOBEAN = "jsonToBean";
     public static final String ACCOUNTJSONTOBEAN = "accountJsonToBean";
     public static final String CONTENTJSONTOBEAN = "contentJsonToBean";
+    public static final String FLOW_LOGS_JSON_TO_BEAN = "flowLogsJsonToBean";
 }
 
 
