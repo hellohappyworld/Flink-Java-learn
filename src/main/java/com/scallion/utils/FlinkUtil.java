@@ -11,6 +11,7 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -58,6 +59,16 @@ public class FlinkUtil {
         prop.setProperty("bootstrap.servers", broker);
         prop.setProperty("group.id", groupId);
         FlinkKafkaConsumer011<String> kafkaConsumer = new FlinkKafkaConsumer011<>(topic, new SimpleStringSchema(), prop);
+        kafkaConsumer.setStartFromLatest();
+        DataStreamSource<String> source = env.addSource(kafkaConsumer).setParallelism(1);
+        return source;
+    }
+
+    public static DataStream<String> getKafkaStream(String broker, ArrayList<String> topics, String groupId) {
+        Properties prop = new Properties();
+        prop.setProperty("bootstrap.servers", broker);
+        prop.setProperty("group.id", groupId);
+        FlinkKafkaConsumer011<String> kafkaConsumer = new FlinkKafkaConsumer011<>(topics, new SimpleStringSchema(), prop);
         kafkaConsumer.setStartFromLatest();
         DataStreamSource<String> source = env.addSource(kafkaConsumer).setParallelism(1);
         return source;

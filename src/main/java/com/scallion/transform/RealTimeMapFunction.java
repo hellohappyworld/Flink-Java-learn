@@ -2,7 +2,9 @@ package com.scallion.transform;
 
 import com.alibaba.fastjson.JSON;
 import com.scallion.bean.DimAccountBean;
+import com.scallion.bean.DimContentBean;
 import com.scallion.bean.PageAndInfoLogBean;
+import com.scallion.common.Common;
 import org.apache.flink.api.common.functions.RichMapFunction;
 
 /**
@@ -26,10 +28,29 @@ public class RealTimeMapFunction extends RichMapFunction<String, Object> {
     public Object map(String input) throws Exception {
         try {
             switch (mapType) {
-                case "jsonToBean":
+                case Common.JSONTOBEAN:
                     return JSON.parseObject(input, PageAndInfoLogBean.class);
-                case "accountJsonToBean":
+                case Common.ACCOUNTJSONTOBEAN:
                     return JSON.parseObject(input, DimAccountBean.class);
+                case Common.CONTENTJSONTOBEAN: {
+                    DimContentBean dimContentBean = JSON.parseObject(input, DimContentBean.class);
+                    //判断id
+                    switch (dimContentBean.getPageType()) {
+                        //文章数据
+                        case "article":
+                            dimContentBean.setId("ucms_" + dimContentBean.getId());
+                            dimContentBean.setJoinId("ucms_" + dimContentBean.getId());
+                            break;
+                        //视频数据
+                        case "video":
+                            dimContentBean.setId("video_" + dimContentBean.getId());
+                            dimContentBean.setJoinId("video_" + dimContentBean.getId());
+                            break;
+                        //专项数据就是id本身,joinId为"#"
+                    }
+
+                    return dimContentBean;
+                }
                 default:
                     return null;
             }

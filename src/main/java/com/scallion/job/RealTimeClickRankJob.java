@@ -28,7 +28,7 @@ public class RealTimeClickRankJob implements Job {
                 .filter(new RealTimeFilterFunction("fliterJsonKey", "opa", opaList));
         //Transform
         clickAndInfoLogs
-                .map(new RealTimeMapFunction("jsonToBean"))
+                .map(new RealTimeMapFunction(Common.JSONTOBEAN))
                 .filter(new PageAndInfoBeansFilterFunction(""));
         //Sink
     }

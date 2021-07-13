@@ -17,10 +17,10 @@ public class DimAccountJob implements Job {
     public void run() {
         //Source
         //获取账号源日志
-        DataStream<String> accountLogs = FlinkUtil.getKafkaStream(Common.KAFKA_ACCOUNT_BROKER, Common.ACCOUNT_SOURCE_TOPIC, Common.DIM_SOURCE_CONSUMER_GROUP_ID);
+        DataStream<String> accountLogs = FlinkUtil.getKafkaStream(Common.KAFKA_DATACENTER_BROKER, Common.ACCOUNT_SOURCE_TOPIC, Common.DIM_SOURCE_CONSUMER_GROUP_ID);
         //Transform
         SingleOutputStreamOperator<DimAccountBean> accountBean = accountLogs
-                .map(new RealTimeMapFunction("accountJsonToBean"))
+                .map(new RealTimeMapFunction(Common.ACCOUNTJSONTOBEAN))
                 .map(bean -> (DimAccountBean) bean);
         //异步IO关联category.json
         //Sink
