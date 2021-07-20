@@ -205,6 +205,21 @@ public class Common {
     public static final String ACCOUNTJSONTOBEAN = "accountJsonToBean";
     public static final String CONTENTJSONTOBEAN = "contentJsonToBean";
     public static final String FLOW_LOGS_JSON_TO_BEAN = "flowLogsJsonToBean";
+
+    //HBase批量写入类型常量
+    public static final String DIM_CONTENT_FEATURES_TYPE = "dimContentFeaturesBean";
+    public static final String DIM_ACCOUNT_TYPE = "dimAccountBean";
+
+    //HBase表名
+    //内容画像维表
+    public static final String DIM_CONTENT_FEATURES_HBASE_TABLE = "dimContentFeaturesTable";
+    //自媒体类别维表
+    public static final String DIM_ZMT_CATEGORY_HBASE_TABLE = "dimZmtCategoryTable";
+    //账号维表 dimAccountBean
+    public static final String DIM_ACCOUNT_HBASE_TABLE = "dimAccountTable";
+
+    //流量数据与维表的关联方式
+    public static final String ACCOUNT_JOIN_ZMTCATEGORY = "accountJoinZmtCategory";
 }
 
 

@@ -12,6 +12,8 @@ import com.scallion.utils.TimeUtil;
 public class DimAccountBean {
     @JSONField(name = "_id")
     private String accId;
+    @JSONField(name = "categoryId")
+    private String categoryId;
     @JSONField(name = "eAccountId")
     private String eAccountId;
     @JSONField(name = "eId")
@@ -34,6 +36,8 @@ public class DimAccountBean {
     private String fieldlevel;
     @JSONField(name = "accountType")
     private String accountType;
+    @JSONField(name = "accountTypeName")
+    private String accountTypeName;
     @JSONField(name = "accounttypeid")
     private String accounttypeid;
     @JSONField(name = "wemediatypeid")
@@ -175,6 +179,7 @@ public class DimAccountBean {
 
     public DimAccountBean() {
         this.accId = Common.BEANFIELDDEFAULT;
+        this.categoryId = Common.BEANFIELDDEFAULT;
         this.eAccountId = Common.BEANFIELDDEFAULT;
         this.eId = Common.BEANFIELDDEFAULT;
         this.weMediaName = Common.BEANFIELDDEFAULT;
@@ -255,6 +260,7 @@ public class DimAccountBean {
         this.updateUserId = Common.BEANFIELDDEFAULT;
         this.updateUserName = Common.BEANFIELDDEFAULT;
         this.accountRatingGroup = Common.BEANFIELDDEFAULT;
+        this.accountTypeName = Common.BEANFIELDDEFAULT;
     }
 
     public String getAccId() {
@@ -263,6 +269,14 @@ public class DimAccountBean {
 
     public void setAccId(String accId) {
         this.accId = accId;
+    }
+
+    public String getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
     }
 
     public String geteAccountId() {
@@ -925,10 +939,19 @@ public class DimAccountBean {
         this.accountRatingGroup = accountRatingGroup;
     }
 
+    public String getAccountTypeName() {
+        return accountTypeName;
+    }
+
+    public void setAccountTypeName(String accountTypeName) {
+        this.accountTypeName = accountTypeName;
+    }
+
     @Override
     public String toString() {
         return "DimAccountBean{" +
                 "accId='" + accId + '\'' +
+                ", categoryId='" + categoryId + '\'' +
                 ", eAccountId='" + eAccountId + '\'' +
                 ", eId='" + eId + '\'' +
                 ", weMediaName='" + weMediaName + '\'' +
@@ -940,6 +963,7 @@ public class DimAccountBean {
                 ", field='" + field + '\'' +
                 ", fieldlevel='" + fieldlevel + '\'' +
                 ", accountType='" + accountType + '\'' +
+                ", accountTypeName='" + accountTypeName + '\'' +
                 ", accounttypeid='" + accounttypeid + '\'' +
                 ", wemediatypeid='" + wemediatypeid + '\'' +
                 ", weMediaType='" + weMediaType + '\'' +
@@ -1012,3 +1036,4 @@ public class DimAccountBean {
                 '}';
     }
 }
+
