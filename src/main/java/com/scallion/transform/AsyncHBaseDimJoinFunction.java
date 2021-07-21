@@ -1,5 +1,7 @@
 package com.scallion.transform;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.scallion.bean.DimAccountBean;
 import com.scallion.common.Common;
 import com.stumbleupon.async.Callback;
@@ -14,11 +16,9 @@ import org.hbase.async.GetRequest;
 import org.hbase.async.GetResultOrException;
 import org.hbase.async.HBaseClient;
 import org.hbase.async.KeyValue;
+import scala.math.Ordering;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * created by gaowj.
@@ -27,10 +27,14 @@ import java.util.List;
  */
 public class AsyncHBaseDimJoinFunction extends RichAsyncFunction<Object, Object> {
     private HBaseClient client;//HBase异步客户端
-    private String joinType;//表的关联方式
+    private String rowKeyCol; //主键列名
+    private HashMap<String, HashSet<String>> joinTables;//需要关联的表名及其字段
+    private HashMap<String, String> colAndResCol;//map的key为维表列名，value为流量bean的列名
 
-    public AsyncHBaseDimJoinFunction(String joinType) {
-        this.joinType = joinType;
+    public AsyncHBaseDimJoinFunction(String rowKeyCol, HashMap<String, HashSet<String>> joinTables, HashMap<String, String> colAndResCol) {
+        this.rowKeyCol = rowKeyCol;
+        this.joinTables = joinTables;
+        this.colAndResCol = colAndResCol;
     }
 
     @Override
@@ -45,68 +49,47 @@ public class AsyncHBaseDimJoinFunction extends RichAsyncFunction<Object, Object>
     @Override
     public void asyncInvoke(Object bean, ResultFuture<Object> resultFuture) throws Exception {
         try {
-            switch (joinType) {
-                case Common.ACCOUNT_JOIN_ZMTCATEGORY: {
-                    accountJoinZmtCategory(bean, resultFuture);
-                    break;
+            //流量日志
+            JSONObject beanJsonObj = JSON.parseObject(JSON.toJSONString(bean));
+            String rowKey = beanJsonObj.getString(rowKeyCol);//主键列值
+            ArrayList<GetRequest> getRequests = new ArrayList<>();
+            //需要join的维表名
+            Iterator<String> tables = joinTables.keySet().iterator();
+            while (tables.hasNext()) {
+                String table = tables.next();
+                HashSet<String> cols = joinTables.get(table);//需要关联的列名
+                Iterator<String> colsIterator = cols.iterator();
+                while (colsIterator.hasNext()) {
+                    String col = colsIterator.next();
+                    getRequests.add(new GetRequest(table, rowKey,
+                            Common.DIM_HBASE_TABLE_FAMLIY,
+                            col));
                 }
             }
+            Deferred<List<GetResultOrException>> listDeferred = client.get(getRequests);
+            listDeferred.addCallback((Callback<String, List<GetResultOrException>>) callBack -> {
+                Iterator<GetResultOrException> callBackIterator = callBack.iterator();
+                while (callBackIterator.hasNext()) {
+                    GetResultOrException results = callBackIterator.next();
+                    ArrayList<KeyValue> cells = results.getCells();
+                    for (KeyValue kv : cells) {
+                        String qualifier = new String(kv.qualifier());//维表列名
+                        String v = new String(kv.value());
+                        if (StringUtils.isNotBlank(v)) {
+                            String resCol = colAndResCol.get(qualifier);//流量日志bean的列名
+                            beanJsonObj.put(resCol, v);
+                        }
+                    }
+                }
+
+                //收集关联后的结果数据
+                resultFuture.complete(Collections.singleton(beanJsonObj));
+
+                return null;
+            });
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-
-    /**
-     * 账号数据关联自媒体类别维表
-     *
-     * @param bean
-     * @param resultFuture
-     */
-    private void accountJoinZmtCategory(Object bean, ResultFuture<Object> resultFuture) {
-        DimAccountBean dimAccountBean = (DimAccountBean) bean;
-        ArrayList<GetRequest> getRequests = new ArrayList<>();
-        getRequests.add(new GetRequest(Common.DIM_ZMT_CATEGORY_HBASE_TABLE,
-                "aId", "dimFamily", "name"));
-        getRequests.add(new GetRequest(Common.DIM_ZMT_CATEGORY_HBASE_TABLE,
-                "aId", "dimFamily", "level"));
-        getRequests.add(new GetRequest(Common.DIM_ZMT_CATEGORY_HBASE_TABLE,
-                "aId", "dimFamily", "createTime"));
-        getRequests.add(new GetRequest(Common.DIM_ZMT_CATEGORY_HBASE_TABLE,
-                "aId", "dimFamily", "type"));
-
-        Deferred<List<GetResultOrException>> listDeferred = client.get(getRequests);
-
-        listDeferred.addCallback((Callback<String, List<GetResultOrException>>) callback -> {
-            Iterator<GetResultOrException> callbackIterator = callback.iterator();
-            while (callbackIterator.hasNext()) {
-                GetResultOrException results = callbackIterator.next();
-                ArrayList<KeyValue> cells = results.getCells();
-                for (KeyValue kv : cells) {
-                    String qualifier = new String(kv.qualifier());
-                    String v = new String(kv.value());
-                    if (StringUtils.isNotBlank(v)) {
-                        switch (qualifier) {
-                            case "name":
-                                dimAccountBean.setField(v);
-                                break;
-                            case "level":
-                                dimAccountBean.setFieldlevel(v);
-                                break;
-                            case "createTime":
-                                dimAccountBean.setFieldcreatetime(v);
-                                break;
-                            case "type":
-                                dimAccountBean.setFieldtype(v);
-                                break;
-                        }
-                    }
-                }
-            }
-
-            resultFuture.complete(Collections.singleton(dimAccountBean));
-
-            return null;
-        });
-    }
-
 }

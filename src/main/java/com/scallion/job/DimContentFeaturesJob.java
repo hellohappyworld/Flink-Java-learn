@@ -22,6 +22,6 @@ public class DimContentFeaturesJob implements Job {
         SingleOutputStreamOperator<Object> resultBean = source.map(new DimContentFeaturesMapFunction())
                 .map(bean -> (Object) bean);
         //Sink
-        resultBean.addSink(new HBaseSink(50, 60000, Common.DIM_CONTENT_FEATURES_TYPE, Common.DIM_CONTENT_FEATURES_HBASE_TABLE));
+        resultBean.addSink(new HBaseSink(50, 60000, Common.DIM_CONTENT_FEATURES_ROW_KEY, Common.DIM_CONTENT_FEATURES_HBASE_TABLE));
     }
 }

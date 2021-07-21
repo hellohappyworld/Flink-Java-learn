@@ -206,9 +206,12 @@ public class Common {
     public static final String CONTENTJSONTOBEAN = "contentJsonToBean";
     public static final String FLOW_LOGS_JSON_TO_BEAN = "flowLogsJsonToBean";
 
-    //HBase批量写入类型常量
-    public static final String DIM_CONTENT_FEATURES_TYPE = "dimContentFeaturesBean";
-    public static final String DIM_ACCOUNT_TYPE = "dimAccountBean";
+    //HBase维表主键
+    public static final String DIM_CONTENT_FEATURES_ROW_KEY = "docid";
+    public static final String DIM_ACCOUNT_ROW_KEY = "_id";
+
+    //HBase维表统一列蔟名
+    public static final String DIM_HBASE_TABLE_FAMLIY = "dimFamily";
 
     //HBase表名
     //内容画像维表

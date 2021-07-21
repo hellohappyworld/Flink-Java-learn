@@ -1,7 +1,7 @@
 package com.scallion.sink;
 
-import com.scallion.bean.DimAccountBean;
-import com.scallion.bean.DimContentFeaturesBean;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.scallion.common.Common;
 import com.scallion.utils.HBaseUtil;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -13,6 +13,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * created by gaowj.
@@ -23,17 +24,17 @@ import java.util.ArrayList;
 public class HBaseSink extends RichSinkFunction<Object> {
     private int maxSize; //批量写入HBase的最大条数
     private long delayTime; //最大延时时长
-    private String beanType; //用于判断数据bean
+    private String rowKey; //维表主键
     private String hbaseTable;//需要写入的HBase表
 
     private Connection connection; //HBase链接器
     private long lastInvokeTime; //上次批量插入HBase数据的时间
     private ArrayList<Put> puts = new ArrayList<>(); //存放插入HBase的数据
 
-    public HBaseSink(int maxSize, long delayTime, String beanType, String hbaseTable) {
+    public HBaseSink(int maxSize, long delayTime, String rowKey, String hbaseTable) {
         this.maxSize = maxSize;
         this.delayTime = delayTime;
-        this.beanType = beanType;
+        this.rowKey = rowKey;
         this.hbaseTable = hbaseTable;
     }
 
@@ -56,18 +57,22 @@ public class HBaseSink extends RichSinkFunction<Object> {
     @Override
     public void invoke(Object bean, Context context) throws Exception {
         try {
-            switch (beanType) {
-                case Common.DIM_CONTENT_FEATURES_TYPE: {
-                    DimContentFeaturesBean dimContentFeaturesBean = (DimContentFeaturesBean) bean;
-                    getDimContentFeaturesPut(dimContentFeaturesBean);
-                    break;
-                }
-                case Common.DIM_ACCOUNT_TYPE: {
-                    DimAccountBean dimAccountBean = (DimAccountBean) bean;
-                    getDimAccountPut(dimAccountBean);
-                    break;
-                }
+            //将Bean对象转换为JsonObj，以便于提取各个字段数据
+            JSONObject jsonObj = JSON.parseObject(JSON.toJSONString(bean));
+            Iterator<String> keySetIterator = jsonObj.keySet().iterator();
+            //创建put对象并赋值rowkey
+            Put put = new Put(jsonObj.getString(rowKey).getBytes());
+            //添加值：列蔟 列 值
+            while (keySetIterator.hasNext()) {
+                String key = keySetIterator.next();
+                if (rowKey.equals(key))
+                    continue;
+                put.addColumn(Common.DIM_HBASE_TABLE_FAMLIY.getBytes(),
+                        key.getBytes(),
+                        jsonObj.getString(key).getBytes());
             }
+            //添加Put对象到list集合
+            puts.add(put);
 
             long currentTimeMillis = System.currentTimeMillis();
             //批量插入
@@ -82,46 +87,6 @@ public class HBaseSink extends RichSinkFunction<Object> {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-    /**
-     * 获取账号维表数据put
-     *
-     * @param bean
-     */
-    private void getDimAccountPut(DimAccountBean bean) {
-        //同getDimContentFeaturesPut
-    }
-
-    /**
-     * 获取内容维表数据put
-     *
-     * @param bean
-     */
-    private void getDimContentFeaturesPut(DimContentFeaturesBean bean) {
-        String rowKey = bean.getDocid();
-        Put put = new Put(rowKey.getBytes());//创建put对象并赋值rowKey
-        //添加值：列蔟 列 值
-        put.addColumn("dimFamily".getBytes(), "modifytime".getBytes(),
-                bean.getModifytime().getBytes());
-        put.addColumn("dimFamily".getBytes(), "scfeatures".getBytes(),
-                bean.getScfeatures().getBytes());
-        put.addColumn("dimFamily".getBytes(), "cfeatures".getBytes(),
-                bean.getCfeatures().getBytes());
-        put.addColumn("dimFamily".getBytes(), "otherfeatures".getBytes(),
-                bean.getOtherfeatures().getBytes());
-        put.addColumn("dimFamily".getBytes(), "importdate".getBytes(),
-                bean.getImportdate().getBytes());
-        put.addColumn("dimFamily".getBytes(), "otherState".getBytes(),
-                bean.getOtherState().getBytes());
-        put.addColumn("dimFamily".getBytes(), "expiretime".getBytes(),
-                bean.getExpiretime().getBytes());
-        put.addColumn("dimFamily".getBytes(), "searchpath".getBytes(),
-                bean.getSearchpath().getBytes());
-        put.addColumn("dimFamily".getBytes(), "classv".getBytes(),
-                bean.getClassv().getBytes());
-        //添加put对象到list集合
-        puts.add(put);
     }
 }
 
