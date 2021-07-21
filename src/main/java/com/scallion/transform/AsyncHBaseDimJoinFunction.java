@@ -83,13 +83,14 @@ public class AsyncHBaseDimJoinFunction extends RichAsyncFunction<Object, Object>
                             }
                         }
                     }
-                    //收集关联后的结果数据
+                    //收集关联后的结果数据，或者未关联的数据
                     resultFuture.complete(Collections.singleton(beanJsonObj));
                     return null;
                 }
             }, new Callback<Object, Object>() {
                 @Override
                 public Object call(Object o) throws Exception {
+                    //收集关联时候出现异常的原始bean数据
                     resultFuture.complete(Collections.singleton(beanJsonObj));
                     return null;
                 }
