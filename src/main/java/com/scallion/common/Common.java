@@ -207,8 +207,9 @@ public class Common {
     public static final String FLOW_LOGS_JSON_TO_BEAN = "flowLogsJsonToBean";
 
     //HBase维表主键
-    public static final String DIM_CONTENT_FEATURES_ROW_KEY = "docid";
-    public static final String DIM_ACCOUNT_ROW_KEY = "_id";
+    public static final String DIM_CONTENT_FEATURES_ROW_KEY = "docid";//内容画像维表主键
+    public static final String DIM_ACCOUNT_ROW_KEY = "_id";//账号维表主键
+    public static final String DIM_CONTENT_ROW_KEY = "id";//内容维表主键
 
     //HBase维表统一列蔟名
     public static final String DIM_HBASE_TABLE_FAMLIY = "dimFamily";

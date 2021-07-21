@@ -8,6 +8,8 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * created by gaowj.
@@ -15,6 +17,25 @@ import java.util.ArrayList;
  * function: 内容维表Job
  */
 public class DimContentJob implements Job {
+    private String rowKeyCol; //与精品池维表,内容画像维表关联时的主键列名
+    private HashMap<String, HashSet<String>> joinTables;//与精品池维表,内容画像维表关联时需要关联的表名及其字段
+    private HashMap<String, String> colAndResCol;//与精品池维表,内容画像维表关联时用 map的key为维表列名，value为流量bean的列名
+
+    private String staffRowKeyCol;//与员工维表关联时的主键列名
+    private HashMap<String, HashSet<String>> staffJoinTables;
+    private HashMap<String, String> staffColAndResCol;
+
+    private String accountRowKeyCol;//与账号维表关联时用的主键列名
+    private HashMap<String, HashSet<String>> accountJoinTables;
+    private HashMap<String, String> accountColAndResCol;
+
+    public DimContentJob() {
+        rowKeyCol = Common.DIM_CONTENT_ROW_KEY;
+        HashSet<String> jpPoolCols = new HashSet<>();
+        jpPoolCols.add("ch");
+        jpPoolCols.add("ch");
+    }
+
     @Override
     public void run() {
         //1、Source
