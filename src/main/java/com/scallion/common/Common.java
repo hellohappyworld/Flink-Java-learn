@@ -23,6 +23,7 @@ public class Common {
     public static final String UCMSARTICLEINFO = "ucmsArticleInfo";
     public static final String UCMSVIDEOINFO = "ucmsVideoInfo";
     public static final String UCMSSPECIALINFO = "ucmsSpecialInfo";
+    public static final String DWD_LOG_TMP_TOPIC = "dwd_log_tmp";
     //明细层源数据消费者组
     public static final String DWD_SOURCE_CONSUMER_GROUP_ID = "gaowj_ceshi_dwd_202107131530";
     //维表源数据消费者组
