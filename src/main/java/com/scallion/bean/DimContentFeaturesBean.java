@@ -72,7 +72,7 @@ public class DimContentFeaturesBean {
         return otherState;
     }
 
-    public void setOther_state(String otherState) {
+    public void setOtherState(String otherState) {
         this.otherState = otherState;
     }
 

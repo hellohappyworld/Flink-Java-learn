@@ -70,21 +70,24 @@ public class AsyncHBaseDimJoinFunction extends RichAsyncFunction<Object, Object>
             listDeferred.addCallbacks(new Callback<Object, List<GetResultOrException>>() {
                 @Override
                 public Object call(List<GetResultOrException> callBack) throws Exception {
-                    Iterator<GetResultOrException> callBackIterator = callBack.iterator();
-                    while (callBackIterator.hasNext()) {
-                        GetResultOrException results = callBackIterator.next();
-                        ArrayList<KeyValue> cells = results.getCells();
-                        for (KeyValue kv : cells) {
-                            String qualifier = new String(kv.qualifier());//维表列名
-                            String v = new String(kv.value());
-                            if (StringUtils.isNotBlank(v)) {
-                                String resCol = colAndResCol.get(qualifier);//流量日志bean的列名
-                                beanJsonObj.put(resCol, v);
+                    if (callBack != null && !callBack.isEmpty()) {
+                        Iterator<GetResultOrException> callBackIterator = callBack.iterator();
+                        while (callBackIterator.hasNext()) {
+                            GetResultOrException results = callBackIterator.next();
+                            ArrayList<KeyValue> cells = results.getCells();
+                            for (KeyValue kv : cells) {
+                                String qualifier = new String(kv.qualifier());//维表列名
+                                String v = new String(kv.value());
+                                if (StringUtils.isNotBlank(v)) {
+                                    String resCol = colAndResCol.get(qualifier);//流量日志bean的列名
+                                    beanJsonObj.put(resCol, v);
+                                }
                             }
                         }
+                    } else {
+                        //收集关联后的结果数据，或者未关联的数据
+                        resultFuture.complete(Collections.singleton(beanJsonObj));
                     }
-                    //收集关联后的结果数据，或者未关联的数据
-                    resultFuture.complete(Collections.singleton(beanJsonObj));
                     return null;
                 }
             }, new Callback<Object, Object>() {

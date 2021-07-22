@@ -210,6 +210,8 @@ public class Common {
     public static final String DIM_CONTENT_FEATURES_ROW_KEY = "docid";//内容画像维表主键
     public static final String DIM_ACCOUNT_ROW_KEY = "_id";//账号维表主键
     public static final String DIM_CONTENT_ROW_KEY = "id";//内容维表主键
+    public static final String DIM_CONTENT_JOIN_STAFF_ROW_KEY = "creator"; //内容维表与员工维表关联时用到的主键
+    public static final String DIM_CONTENT_JOIN_ACCOUNT_ROW_KEY = "accid";//内容维表与账号维表关联时使用到的主键
 
     //HBase维表统一列蔟名
     public static final String DIM_HBASE_TABLE_FAMLIY = "dimFamily";
@@ -221,6 +223,12 @@ public class Common {
     public static final String DIM_ZMT_CATEGORY_HBASE_TABLE = "dimZmtCategoryTable";
     //账号维表 dimAccountBean
     public static final String DIM_ACCOUNT_HBASE_TABLE = "dimAccountTable";
+    //精品池维表
+    public static final String DIM_JPPOOL_HBASE_TABLE = "dimJpPoolTable";
+    //员工维表
+    public static final String DIM_STAFF_HBASE_TABLE = "dimStaffTable";
+    //内容维表
+    public static final String DIM_CONTENT_HBASE_TABLE = "dimContentTable";
 
     //流量数据与维表的关联方式
     public static final String ACCOUNT_JOIN_ZMTCATEGORY = "accountJoinZmtCategory";

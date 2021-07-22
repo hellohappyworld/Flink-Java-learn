@@ -21,6 +21,8 @@ public class DimContentBean {
     private String joinId;
     @JSONField(name = "src")
     private String src;//文章稿源名称
+    @JSONField(name = "tsrc")
+    private String tsrc;
     @JSONField(name = "srcMap")
     private String srcMap;
     @JSONField(name = "type")
@@ -49,6 +51,8 @@ public class DimContentBean {
     private String fhtId;//凤凰通id
     @JSONField(name = "url")
     private String urlPc;
+    @JSONField(name = "applyTime")
+    private String applyTime;
     @JSONField(name = "wapUrl")
     private String urlIfeng;
     @JSONField(name = "source_link")
@@ -111,10 +115,12 @@ public class DimContentBean {
     public DimContentBean() {
         this.id = "#";
         this.title = "#";
+        this.applyTime = "#";
         this.editor = "#";
         this.fhh = "#";
         this.joinId = "#";
         this.src = "#";
+        this.tsrc = "#";
         this.srcMap = "#";
         this.pageType = "#";
         this.domain = "#";
@@ -139,7 +145,7 @@ public class DimContentBean {
         this.wordNum = 0;
         this.jppoolCh = "#";
         this.jppoolUserName = "#";
-        this.isJp = "#";
+        this.isJp = "0";
         this.original = "#";
         this.rank = "#";
         this.field = "#";
@@ -166,6 +172,14 @@ public class DimContentBean {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getApplyTime() {
+        return applyTime;
+    }
+
+    public void setApplyTime(String applyTime) {
+        this.applyTime = applyTime;
     }
 
     public String getTitle() {
@@ -198,6 +212,18 @@ public class DimContentBean {
 
     public void setJoinId(String joinId) {
         this.joinId = joinId;
+    }
+
+    public String getTsrc() {
+        return tsrc;
+    }
+
+    public void setTsrc(String tsrc) {
+        this.tsrc = tsrc;
+    }
+
+    public void setWordNum(int wordNum) {
+        this.wordNum = wordNum;
     }
 
     public String getSrc() {
